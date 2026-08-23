@@ -77,7 +77,7 @@
   </div>
 
   <p class="meta">
-    Collector reached at <code>http://collector:6000</code> (proxied as <code>/api/</code>).
+    Collector reached at <code>http://collector:6000</code>, proxied as <code id="apibase">/api/</code>.
     Last update: <span id="ts">never</span> &middot; <button id="refresh">Refresh now</button>
   </p>
   <pre id="raw">waiting for first sample…</pre>
@@ -86,13 +86,29 @@
 <script>
   const $ = id => document.getElementById(id);
 
+  // Resolve /api relative to wherever this page is served from, NOT from the
+  // domain root. A root-absolute fetch('/api/status') breaks the moment the
+  // dashboard sits behind a path-prefix reverse proxy (e.g. the Poridhi lab
+  // serves it at /proxy/9090/, so /api/status hits the proxy root and 404s).
+  function apiBase() {
+    let path = window.location.pathname;
+    if (!path.endsWith('/')) {
+      // Trailing segment with a dot is a file name (/index.html) -> drop it.
+      // Otherwise it is a directory reached without its slash -> add one.
+      path = /\/[^/]*\.[^/]*$/.test(path) ? path.replace(/[^/]*$/, '') : path + '/';
+    }
+    return path + 'api/';
+  }
+
+  const API = apiBase();
+
   function setBar(el, percent) { el.style.width = Math.min(100, Math.max(0, percent)) + '%'; }
 
   async function tick() {
     try {
       const [status, metrics] = await Promise.all([
-        fetch('/api/status').then(r => r.json()),
-        fetch('/api/metrics').then(r => r.json())
+        fetch(API + 'status').then(r => r.json()),
+        fetch(API + 'metrics').then(r => r.json())
       ]);
 
       $('dot').className = 'dot up';
@@ -119,6 +135,7 @@
     }
   }
 
+  $('apibase').textContent = API;
   $('refresh').addEventListener('click', tick);
   tick();
   setInterval(tick, 5000);

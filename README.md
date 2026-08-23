@@ -223,6 +223,70 @@ NGINX resolves the hostname at config-load time and **exits** if the collector c
 yet. With the variable plus `resolver 127.0.0.11`, resolution happens per request, so the dashboard
 starts regardless of ordering and simply returns 502 until the collector answers.
 
+### Problem actually hit and fixed: dashboard works locally, breaks behind a path proxy
+
+**Symptom.** Deployed to a remote lab container exposed at
+`https://<lab-host>/proxy/9090/`. The page rendered, but every tile showed `–` and the pill said
+"collector unreachable" — even though the identical image worked perfectly at
+`http://localhost:9090`.
+
+**Which command found it.** The browser devtools **Network** tab (equivalently
+`docker compose logs dashboard`, which showed *no* `/api/` requests arriving at all):
+
+```
+GET https://<lab-host>/proxy/9090/   -> 200      <- the page itself loads
+GET https://<lab-host>/api/status    -> 404      <- wrong host path, never reaches the container
+GET https://<lab-host>/api/metrics   -> 404
+```
+
+The 404s were not on `/proxy/9090/api/status` — they were on `/api/status`, at the **domain root**.
+That ruled out NGINX and the collector immediately: the requests were never reaching the container.
+Confirmed from the browser console:
+
+```js
+await (await fetch('/api/status')).text()                       // 404 "Not found."  <- proxy edge
+await (await fetch(new URL('api/status', document.baseURI))).status  // 200  <- container answers
+```
+
+**Cause.** `index.html` called `fetch('/api/status')` — a **root-absolute** URL. That works when the
+site is served at `/`, but the lab serves it under a path prefix, and only `/proxy/9090/*` is
+forwarded to the container. The leading slash threw away the prefix, so the request went to the
+proxy's own root instead of the dashboard.
+
+**Fix.** Resolve the API path relative to wherever the page is served from:
+
+```js
+function apiBase() {
+  let path = window.location.pathname;
+  if (!path.endsWith('/')) {
+    path = /\/[^/]*\.[^/]*$/.test(path) ? path.replace(/[^/]*$/, '') : path + '/';
+  }
+  return path + 'api/';
+}
+const API = apiBase();          // "/api/" locally, "/proxy/9090/api/" behind the lab proxy
+fetch(API + 'status');
+```
+
+The two branches matter because the lab serves `/proxy/9090` **without** redirecting to add the
+trailing slash. A plain relative `fetch('api/status')` would resolve to `/proxy/api/status` there
+and 404 again. Resolved paths, all correct:
+
+| Page URL path | API base |
+|---|---|
+| `/` | `/api/` |
+| `/index.html` | `/api/` |
+| `/proxy/9090/` | `/proxy/9090/api/` |
+| `/proxy/9090` | `/proxy/9090/api/` |
+| `/proxy/9090/index.html` | `/proxy/9090/api/` |
+
+Worth internalising: **nothing was wrong with Docker.** The network, the volume, the collector and
+the NGINX proxy were all healthy — the bug was a front-end URL that silently assumed it owned the
+domain root. Rebuild the dashboard after changing it, since `index.html` is baked into the image:
+
+```bash
+docker compose up -d --build
+```
+
 ### Other failure modes and how to read them
 
 | Symptom | Cause | How to find it | Fix |
@@ -231,6 +295,7 @@ starts regardless of ordering and simply returns 502 until the collector answers
 | `/api/*` → **502**, log says `no resolver defined` or `host not found` | dashboard not on the same network as the collector | `docker network inspect monitoring-app_monitoring-net` — only one container listed | put both services on `monitoring-net` in `compose.yaml` |
 | `docker compose up` → `port is already allocated` | something else holds host 9090 | `ss -tulnp \| grep 9090` (`lsof -nP -iTCP:9090` on macOS) | stop the other process or change the host side of `9090:80` |
 | Metrics reset to zero after a redeploy | volume removed | `docker volume ls` — `metrics-data` missing | don't use `docker compose down -v`; `down` alone keeps the volume |
+| Dashboard loads but tiles show `–`, devtools shows `/api/*` 404 at the **domain root** | front-end used root-absolute URLs behind a path-prefix proxy | devtools Network tab — the 404 path is missing the proxy prefix | resolve `/api` relative to the page (see above) |
 | Dashboard loads but tiles show `–` and "collector unreachable" | browser can reach NGINX, NGINX can't reach the collector | browser devtools network tab, then `docker exec dashboard wget -qO- http://collector:6000/status` | same as the 502 rows above |
 
 One Linux detail worth knowing while debugging: `docker exec collector kill -9 1` **does nothing**.
