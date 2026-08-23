@@ -1,0 +1,99 @@
+=== Kernel / OS ===
+Darwin NafuizzamansAir.lan 27.0.0 Darwin Kernel Version 27.0.0: Wed Aug  5 22:05:58 PDT 2026; root:xnu-13432.1.6.501.1~1/RELEASE_ARM64_T8142 arm64
+
+=== IP addresses ===
+lo0: flags=8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 16384
+	inet 127.0.0.1 netmask 0xff000000
+gif0: flags=8010<POINTOPOINT,MULTICAST> mtu 1280
+stf0: flags=0<> mtu 1280
+anpi0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+anpi1: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+en2: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+en3: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+en1: flags=8963<UP,BROADCAST,SMART,RUNNING,PROMISC,SIMPLEX,MULTICAST> mtu 1500
+en4: flags=8963<UP,BROADCAST,SMART,RUNNING,PROMISC,SIMPLEX,MULTICAST> mtu 1500
+bridge0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+ap1: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+en0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+	inet 192.168.110.116 netmask 0xffffff00 broadcast 192.168.110.255
+awdl0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+llw0: flags=8863<UP,BROADCAST,SMART,RUNNING,SIMPLEX,MULTICAST> mtu 1500
+nan0: flags=8822<BROADCAST,SMART,SIMPLEX,MULTICAST> mtu 1500
+utun4: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST> mtu 1500
+utun5: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST> mtu 1380
+utun6: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST> mtu 2000
+utun7: flags=8051<UP,POINTOPOINT,RUNNING,MULTICAST> mtu 1000
+
+=== Disk space ===
+Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s1s1   460Gi    12Gi   373Gi     4%    481k  3.9G    0%   /
+devfs            226Ki   226Ki     0Bi   100%     780     0  100%   /dev
+/dev/disk3s6     460Gi   2.0Gi   373Gi     1%       2  3.9G    0%   /System/Volumes/VM
+/dev/disk3s2     460Gi    10Gi   373Gi     3%     366  3.9G    0%   /System/Volumes/Preboot
+/dev/disk3s4     460Gi    79Mi   373Gi     1%     111  3.9G    0%   /System/Volumes/Update
+/dev/disk1s2     550Mi   6.0Mi   529Mi     2%       1  5.4M    0%   /System/Volumes/xarts
+/dev/disk1s1     550Mi   5.9Mi   529Mi     2%      36  5.4M    0%   /System/Volumes/iSCPreboot
+/dev/disk1s3     550Mi   4.3Mi   529Mi     1%     779  5.4M    0%   /System/Volumes/Hardware
+/dev/disk3s5     460Gi    61Gi   373Gi    15%    405k  3.9G    0%   /System/Volumes/Data
+map auto_home      0Bi     0Bi     0Bi   100%       0     0     -   /System/Volumes/Data/home
+/dev/disk3s3     460Gi   1.7Gi   373Gi     1%      69  3.9G    0%   /Volumes/Recovery
+/dev/disk4s3     1.4Gi   719Mi   761Mi    49%     705  4.3G    0%   /Volumes/Google Chrome
+/dev/disk6s1     813Mi   726Mi    84Mi    90%    1.0k  856k    0%   /Volumes/Brave Browser
+/dev/disk8s1     1.1Gi   840Mi   262Mi    77%     12k  2.7M    0%   /Volumes/Puku
+/dev/disk9s1     1.0Gi   926Mi    80Mi    93%    3.6k  4.3G    0%   /Volumes/VS Code
+/dev/disk10s1    800Mi   203Mi   597Mi    26%     973  4.3G    0%   /Volumes/JetBrains Toolbox
+/dev/disk11s1    1.4Gi   1.4Gi   640Ki   100%    7.2k  4.3G    0%   /Volumes/ChatGPT Installer
+/dev/disk12s1    1.1Gi   816Mi   291Mi    74%    3.4k  4.3G    0%   /Volumes/Claude
+/dev/disk13s2    2.3Gi   2.1Gi   170Mi    93%     274  4.3G    0%   /Volumes/Docker
+
+=== Memory ===
+Mach Virtual Memory Statistics: (page size of 16384 bytes)
+Pages free:                                    17243.
+Pages active:                                 278414.
+Pages inactive:                               277390.
+Pages speculative:                               139.
+Pages throttled:                                   0.
+
+=== Project files and permissions ===
+total 40
+-rw-r--r--@ 1 nafuizzamanparves  staff  15375 Aug 23 13:40 README.md
+drwxr-xr-x@ 5 nafuizzamanparves  staff    160 Aug 23 13:33 collector
+-rw-r--r--@ 1 nafuizzamanparves  staff   1123 Aug 23 13:34 compose.yaml
+drwxr-xr-x@ 5 nafuizzamanparves  staff    160 Aug 23 13:34 dashboard
+drwxr-xr-x@ 4 nafuizzamanparves  staff    128 Aug 23 13:40 docs
+drwxr-xr-x@ 6 nafuizzamanparves  staff    192 Aug 23 13:35 scripts
+
+./scripts/../collector:
+total 24
+-rw-r--r--@ 1 nafuizzamanparves  staff   601 Aug 23 13:33 Dockerfile
+-rw-r--r--@ 1 nafuizzamanparves  staff  5217 Aug 23 13:33 app.py
+
+./scripts/../dashboard:
+total 32
+-rw-r--r--@ 1 nafuizzamanparves  staff   485 Aug 23 13:34 Dockerfile
+-rw-r--r--@ 1 nafuizzamanparves  staff  5027 Aug 23 13:34 index.html
+-rw-r--r--@ 1 nafuizzamanparves  staff  1205 Aug 23 13:36 nginx.conf
+
+./scripts/../docs:
+total 16
+-rw-r--r--@ 1 nafuizzamanparves  staff  3685 Aug 23 13:40 linux-setup-output.txt
+-rw-r--r--@ 1 nafuizzamanparves  staff  3606 Aug 23 13:36 verification-output.txt
+
+./scripts/../scripts:
+total 32
+-rwxr-xr-x@ 1 nafuizzamanparves  staff   643 Aug 23 13:35 01-linux-setup.sh
+-rwxr-xr-x@ 1 nafuizzamanparves  staff  2097 Aug 23 13:35 02-manual-docker.sh
+-rwxr-xr-x@ 1 nafuizzamanparves  staff  1580 Aug 23 13:35 03-verify.sh
+-rwxr-xr-x@ 1 nafuizzamanparves  staff   605 Aug 23 13:35 04-cleanup.sh
+
+=== Listening sockets ===
+tcp46      0      0  *.9090                 *.*                    LISTEN     
+tcp6       0      0  *.50995                *.*                    LISTEN     
+tcp4       0      0  *.50995                *.*                    LISTEN     
+tcp4       0      0  127.0.0.1.52829        *.*                    LISTEN     
+tcp4       0      0  127.0.0.1.50473        *.*                    LISTEN     
+tcp4       0      0  127.0.0.1.9277         *.*                    LISTEN     
+tcp6       0      0  *.5000                 *.*                    LISTEN     
+tcp4       0      0  *.5000                 *.*                    LISTEN     
+tcp6       0      0  *.7000                 *.*                    LISTEN     
+tcp4       0      0  *.7000                 *.*                    LISTEN     

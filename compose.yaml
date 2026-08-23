@@ -1,0 +1,46 @@
+# Milestone 1 — Docker & Linux Project
+# Start:  docker compose up -d --build
+# Check:  docker compose ps / docker compose logs
+# Open:   http://<server-ip>:9090
+
+name: monitoring-app
+
+services:
+  dashboard:
+    build: ./dashboard
+    image: monitoring/dashboard:1.0
+    container_name: dashboard
+    ports:
+      - "9090:80"            # host 9090 -> container 80
+    networks:
+      - monitoring-net
+    depends_on:
+      collector:
+        condition: service_started
+    restart: unless-stopped
+
+  collector:
+    build: ./collector
+    image: monitoring/collector:1.0
+    container_name: collector
+    # Port 6000 is NOT published: only the dashboard needs it, and it reaches
+    # it over the Docker network by service name. Uncomment to curl from host.
+    # ports:
+    #   - "6000:6000"
+    expose:
+      - "6000"
+    environment:
+      COLLECTOR_PORT: "6000"
+      DATA_DIR: /data
+    volumes:
+      - metrics-data:/data   # named volume -> metrics survive container removal
+    networks:
+      - monitoring-net
+    restart: unless-stopped
+
+networks:
+  monitoring-net:
+    driver: bridge
+
+volumes:
+  metrics-data:

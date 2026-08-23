@@ -1,0 +1,71 @@
+=== docker compose ps ===
+NAME        IMAGE                      COMMAND                  SERVICE     CREATED          STATUS                    PORTS
+collector   monitoring/collector:1.0   "python app.py"          collector   12 seconds ago   Up 12 seconds (healthy)   6000/tcp
+dashboard   monitoring/dashboard:1.0   "/docker-entrypoint.…"   dashboard   12 seconds ago   Up 12 seconds (healthy)   0.0.0.0:9090->80/tcp, [::]:9090->80/tcp
+
+=== docker images ===
+monitoring/collector:1.0   622ec2c3554c       78.9MB         18.5MB   U    
+monitoring/dashboard:1.0   95a774236447       75.9MB         21.8MB   U    
+nginx:1.27-alpine          65645c7bb6a0       76.8MB         22.7MB        
+
+=== docker network ls / inspect ===
+NETWORK ID     NAME                            DRIVER    SCOPE
+c8265cfd9d8d   monitoring-app_monitoring-net   bridge    local
+network: monitoring-app_monitoring-net (bridge)
+  dashboard 172.18.0.3/16
+  collector 172.18.0.2/16
+
+
+=== docker volume ls / inspect ===
+DRIVER    VOLUME NAME
+local     monitoring-app_metrics-data
+monitoring-app_metrics-data driver=local mountpoint=/var/lib/docker/volumes/monitoring-app_metrics-data/_data
+
+=== service-name DNS: dashboard -> collector ===
+172.18.0.2        collector  collector
+{
+  "service": "metrics-collector",
+  "status": "healthy",
+  "port": 6000,
+  "host": "9caa309ab831",
+  "uptime_seconds": 12.4,
+  "data_dir": "/data",
+  "samples_stored": 1
+}
+=== curl from the host: dashboard on 9090 ===
+GET /            -> HTTP 200
+GET /api/status  -> HTTP 200
+{
+  "service": "metrics-collector",
+  "status": "healthy",
+  "port": 6000,
+  "host": "9caa309ab831",
+  "uptime_seconds": 12.4,
+  "data_dir": "/data",
+  "samples_stored": 1
+}
+=== persisted samples on the volume ===
+lines in /data/metrics.log: 1
+{"collected_at": "2026-08-23T07:36:38Z", "host": "9caa309ab831", "cpu_load": {"1m": 0.0, "5m": 0.0, "15m": 0.0}, "memory": {"total_mb": 7934.1, "used_mb": 807.4, "available_mb": 7126.7, "used_percent": 10.2}, "disk": {"total_gb": 452.08, "used_gb": 1.15, "free_gb": 427.9, "used_percent": 0.3}}
+
+=== resource usage (docker stats, one shot) ===
+CONTAINER ID   NAME        CPU %     MEM USAGE / LIMIT     MEM %     NET I/O           BLOCK I/O    PIDS
+91bfe0617cc5   dashboard   0.00%     9.863MiB / 7.748GiB   0.12%     5.65kB / 8.7kB    0B / 4.1kB   11
+9caa309ab831   collector   0.02%     12.89MiB / 7.748GiB   0.16%     3.51kB / 2.46kB   0B / 0B      1
+
+=== recent logs ===
+collector  | [collector] listening on 0.0.0.0:6000, data dir /data
+collector  | [collector] 127.0.0.1 "GET /status HTTP/1.1" 200 -
+collector  | [collector] 172.18.0.3 "GET /status HTTP/1.1" 200 -
+collector  | [collector] 172.18.0.3 "GET /status HTTP/1.0" 200 -
+collector  | [collector] 172.18.0.3 "GET /status HTTP/1.0" 200 -
+dashboard  | 2026/08/23 07:36:38 [notice] 1#1: start worker process 32
+dashboard  | 2026/08/23 07:36:38 [notice] 1#1: start worker process 33
+dashboard  | 2026/08/23 07:36:38 [notice] 1#1: start worker process 34
+dashboard  | 2026/08/23 07:36:38 [notice] 1#1: start worker process 35
+dashboard  | 2026/08/23 07:36:38 [notice] 1#1: start worker process 36
+dashboard  | 2026/08/23 07:36:38 [notice] 1#1: start worker process 37
+dashboard  | 2026/08/23 07:36:38 [notice] 1#1: start worker process 38
+dashboard  | 192.168.65.1 - - [23/Aug/2026:07:36:50 +0000] "GET / HTTP/1.1" 200 5027 "-" "curl/8.7.1" "-"
+dashboard  | 192.168.65.1 - - [23/Aug/2026:07:36:50 +0000] "GET /api/status HTTP/1.1" 200 173 "-" "curl/8.7.1" "-"
+dashboard  | 192.168.65.1 - - [23/Aug/2026:07:36:50 +0000] "GET /api/status HTTP/1.1" 200 173 "-" "curl/8.7.1" "-"
